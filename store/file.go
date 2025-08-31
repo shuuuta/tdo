@@ -9,12 +9,6 @@ import (
 	"github.com/shuuuta/tdo/utils"
 )
 
-//// プロジェクト取得
-//func LoadProject(path string) (*model.Project, error)
-//
-//// プロジェクト保存
-//func SaveProject(project *model.Project) error
-//
 //// タスク追加
 //func AddTask(projectPath, title string) (*model.Task, error)
 //
@@ -23,10 +17,6 @@ import (
 //
 //// プロジェクト横断タスク取得（-a オプション用）
 //func LoadAllProjects() ([]*model.Project, error)
-//
-//// グローバルタスク読み書き
-//func LoadGlobalTasks() ([]model.Task, error)
-//func AddGlobalTask(title string) (*model.Task, error)
 
 func LoadProject(projectPath, saveDir string) (*model.Project, error) {
 	var p model.Project
@@ -48,7 +38,7 @@ func LoadProject(projectPath, saveDir string) (*model.Project, error) {
 	return &p, nil
 }
 
-func SaveProject(project *model.Project, path string) error {
+func SaveProject(project *model.Project, saveDir string) error {
 	j, err := json.MarshalIndent(project, "", "  ")
 	if err != nil {
 		return err
@@ -59,7 +49,35 @@ func SaveProject(project *model.Project, path string) error {
 		return err
 	}
 
-	fpath := filepath.Join(path, h+".json")
+	fpath := filepath.Join(saveDir, h+".json")
+	if err := os.WriteFile(fpath, j, 0644); err != nil {
+		return err
+	}
+	return nil
+}
+
+func LoadGlobal(saveDir string) (*model.Project, error) {
+	var p model.Project
+
+	d, err := os.ReadFile(filepath.Join(saveDir, "global.json"))
+	if err != nil {
+		return &p, err
+	}
+
+	if err := json.Unmarshal(d, &p); err != nil {
+		return &p, err
+	}
+
+	return &p, nil
+}
+
+func SaveGlobal(project *model.Project, saveDir string) error {
+	j, err := json.MarshalIndent(project, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	fpath := filepath.Join(saveDir, "global.json")
 	if err := os.WriteFile(fpath, j, 0644); err != nil {
 		return err
 	}
