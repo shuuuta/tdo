@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/shuuuta/tdo/log"
 	"github.com/shuuuta/tdo/model"
 	"github.com/shuuuta/tdo/utils"
 )
@@ -109,11 +110,13 @@ func LoadAllProjects(saveDir string) ([]*model.Project, error) {
 			fmt.Println(fpath)
 			d, err := os.ReadFile(fpath)
 			if err != nil {
+				log.Logf("%q could not open: %s", fpath, err.Error())
 				return
 			}
 
 			var p model.Project
 			if err := json.Unmarshal(d, &p); err != nil {
+				log.Logf("[INFO] %q is not project file: %s", fpath, err.Error())
 				return
 			}
 			c <- &p
