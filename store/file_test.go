@@ -1,7 +1,6 @@
 package store
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -13,6 +12,8 @@ import (
 )
 
 func TestSaveAndLoadProject(t *testing.T) {
+	configDir = t.TempDir()
+
 	projectPath := "/foo/bar"
 	now := time.Now().UTC()
 	project := model.Project{
@@ -31,13 +32,11 @@ func TestSaveAndLoadProject(t *testing.T) {
 		},
 	}
 
-	tmpDir := t.TempDir()
-
-	if err := SaveProject(&project, tmpDir); err != nil {
+	if err := SaveProject(&project); err != nil {
 		t.Fatal(err)
 	}
 
-	got, err := LoadProject(projectPath, tmpDir)
+	got, err := LoadProject(projectPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,6 +46,8 @@ func TestSaveAndLoadProject(t *testing.T) {
 }
 
 func TestSaveAndLoadGlobal(t *testing.T) {
+	configDir = t.TempDir()
+
 	now := time.Now().UTC()
 	project := model.Project{
 		IsGlobal: true,
@@ -64,13 +65,11 @@ func TestSaveAndLoadGlobal(t *testing.T) {
 		},
 	}
 
-	tmpDir := t.TempDir()
-
-	if err := SaveProject(&project, tmpDir); err != nil {
+	if err := SaveProject(&project); err != nil {
 		t.Fatal(err)
 	}
 
-	got, err := LoadGlobal(tmpDir)
+	got, err := LoadGlobal()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,6 +82,8 @@ func TestSaveAndLoadGlobal(t *testing.T) {
 }
 
 func TestSaveProjectWithoutPath(t *testing.T) {
+	configDir = t.TempDir()
+
 	project := model.Project{
 		ProjectPath: "",
 		Tasks: []model.Task{
@@ -94,12 +95,14 @@ func TestSaveProjectWithoutPath(t *testing.T) {
 		},
 	}
 
-	if err := SaveProject(&project, t.TempDir()); err == nil {
+	if err := SaveProject(&project); err == nil {
 		t.Fatal("expect return error")
 	}
 }
 
 func TestSaveGlobalWithPath(t *testing.T) {
+	configDir = t.TempDir()
+
 	project := model.Project{
 		IsGlobal:    true,
 		ProjectPath: "/path/to/project",
@@ -112,12 +115,14 @@ func TestSaveGlobalWithPath(t *testing.T) {
 		},
 	}
 
-	if err := SaveProject(&project, t.TempDir()); err == nil {
+	if err := SaveProject(&project); err == nil {
 		t.Fatal("expect return error")
 	}
 }
 
 func TestLoadAll(t *testing.T) {
+	configDir = t.TempDir()
+
 	now := time.Now().UTC()
 	project1 := model.Project{
 		ProjectPath: "/path/to/project1",
@@ -165,24 +170,22 @@ func TestLoadAll(t *testing.T) {
 		},
 	}
 
-	tmpDir := t.TempDir()
-
-	if err := SaveProject(&project1, tmpDir); err != nil {
+	if err := SaveProject(&project1); err != nil {
 		t.Fatal(err)
 	}
-	if err := SaveProject(&project2, tmpDir); err != nil {
+	if err := SaveProject(&project2); err != nil {
 		t.Fatal(err)
 	}
-	if err := SaveProject(&projectGlobal, tmpDir); err != nil {
+	if err := SaveProject(&projectGlobal); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(tmpDir, "dummy.json"), []byte("{dummy: 1}"), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(configDir, "dummy.json"), []byte("{dummy: 1}"), 0644); err != nil {
 		t.Fatal(err)
 	}
 
 	allP := []*model.Project{&project1, &project2, &projectGlobal}
 
-	got, err := LoadAllProjects(tmpDir)
+	got, err := LoadAllProjects()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,5 +216,4 @@ func TestLoadAll(t *testing.T) {
 	for _, v := range got {
 		gotName = append(gotName, v.ProjectPath)
 	}
-	fmt.Printf("expect %+v, got %+v\n", expName, gotName)
 }

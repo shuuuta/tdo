@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"sync"
 
@@ -12,13 +13,17 @@ import (
 	"github.com/shuuuta/tdo/utils"
 )
 
-//// タスク追加
-//func AddTask(projectPath, title string) (*model.Task, error)
-//
-//// タスク完了（MVPでは削除）
-//func DoneTask(projectPath string, id int) error
+var configDir string
 
-func SaveProject(project *model.Project, saveDir string) error {
+func init() {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic(fmt.Sprintf("cannot determine home directory: %v", err))
+	}
+	configDir = path.Join(home, ".config", "tdo")
+}
+
+func SaveProject(project *model.Project) error {
 	if project.IsGlobal && project.ProjectPath != "" {
 		return fmt.Errorf("global project must not have project path.")
 	}
@@ -41,14 +46,14 @@ func SaveProject(project *model.Project, saveDir string) error {
 		fname = h + ".json"
 	}
 
-	fpath := filepath.Join(saveDir, fname)
+	fpath := filepath.Join(configDir, fname)
 	if err := os.WriteFile(fpath, j, 0644); err != nil {
 		return err
 	}
 	return nil
 }
 
-func LoadProject(projectPath, saveDir string) (*model.Project, error) {
+func LoadProject(projectPath string) (*model.Project, error) {
 	var p model.Project
 
 	h, err := utils.HashPath(projectPath)
@@ -56,7 +61,7 @@ func LoadProject(projectPath, saveDir string) (*model.Project, error) {
 		return &p, err
 	}
 
-	d, err := os.ReadFile(filepath.Join(saveDir, h+".json"))
+	d, err := os.ReadFile(filepath.Join(configDir, h+".json"))
 	if err != nil {
 		return &p, err
 	}
@@ -68,10 +73,10 @@ func LoadProject(projectPath, saveDir string) (*model.Project, error) {
 	return &p, nil
 }
 
-func LoadGlobal(saveDir string) (*model.Project, error) {
+func LoadGlobal() (*model.Project, error) {
 	var p model.Project
 
-	d, err := os.ReadFile(filepath.Join(saveDir, "global.json"))
+	d, err := os.ReadFile(filepath.Join(configDir, "global.json"))
 	if err != nil {
 		return &p, err
 	}
@@ -83,10 +88,10 @@ func LoadGlobal(saveDir string) (*model.Project, error) {
 	return &p, nil
 }
 
-func LoadAllProjects(saveDir string) ([]*model.Project, error) {
+func LoadAllProjects() ([]*model.Project, error) {
 	var ps []*model.Project
 
-	e, err := os.ReadDir(saveDir)
+	e, err := os.ReadDir(configDir)
 	if err != nil {
 		return ps, err
 	}
@@ -106,8 +111,7 @@ func LoadAllProjects(saveDir string) ([]*model.Project, error) {
 				return
 			}
 
-			fpath := filepath.Join(saveDir, fname)
-			fmt.Println(fpath)
+			fpath := filepath.Join(configDir, fname)
 			d, err := os.ReadFile(fpath)
 			if err != nil {
 				log.Logf("%q could not open: %s", fpath, err.Error())
