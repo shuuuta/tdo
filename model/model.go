@@ -10,5 +10,6 @@ type Task struct {
 
 type Project struct {
 	ProjectPath string `json:"project_path"`
+	IsGlobal    bool   `json:"is_global"`
 	Tasks       []Task `json:"tasks"`
 }
