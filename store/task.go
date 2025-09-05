@@ -1,6 +1,7 @@
 package store
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -92,11 +93,27 @@ func AddGlobalTask(title string) (*model.Task, error) {
 	return &t, nil
 }
 
-// // タスク完了（MVPでは削除）
-// func DoneTask(projectPath string, id int) error
-func RemoveTask() {
-	// load project json
-	// if not exist
+func RemoveTask(projectPath string, id int) error {
+	p, err := LoadProject(projectPath)
+	if err != nil {
+		return err
+	}
 
-	// save file
+	n := 0
+	hasID := false
+	for i, v := range p.Tasks {
+		if v.ID == id {
+			n = i
+			hasID = true
+		}
+	}
+	if !hasID {
+		return fmt.Errorf("ID %d is not exist in %s", id, projectPath)
+	}
+
+	p.Tasks = p.Tasks[:n+copy(p.Tasks[:n], p.Tasks[n+1:])]
+
+	SaveProject(p)
+
+	return nil
 }
