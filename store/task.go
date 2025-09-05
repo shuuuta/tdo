@@ -33,12 +33,7 @@ func AddTask(projectPath, title string) (*model.Task, error) {
 		}
 	}
 
-	id := 0
-	for _, v := range p.Tasks {
-		if id <= v.ID {
-			id = v.ID + 1
-		}
-	}
+	id := getNextID(p.Tasks)
 
 	t.ID = id
 	t.Title = title
@@ -77,12 +72,7 @@ func AddGlobalTask(title string) (*model.Task, error) {
 		}
 	}
 
-	id := 0
-	for _, v := range p.Tasks {
-		if id <= v.ID {
-			id = v.ID + 1
-		}
-	}
+	id := getNextID(p.Tasks)
 
 	t.ID = id
 	t.Title = title
@@ -103,21 +93,16 @@ func RemoveTask(projectPath string, id int) error {
 		return err
 	}
 
-	n := 0
-	hasID := false
-	for i, v := range p.Tasks {
-		if v.ID == id {
-			n = i
-			hasID = true
-		}
-	}
-	if !hasID {
-		return fmt.Errorf("ID %d is not exist in %s", id, projectPath)
+	t, err := removeTaskByID(p.Tasks, id)
+	if err != nil {
+		return err
 	}
 
-	p.Tasks = p.Tasks[:n+copy(p.Tasks[:n], p.Tasks[n+1:])]
+	p.Tasks = t
 
-	SaveProject(p)
+	if err := SaveProject(p); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -128,23 +113,43 @@ func RemoveGlobalTask(id int) error {
 		return err
 	}
 
-	n := 0
-	hasID := false
-	for i, v := range p.Tasks {
-		if v.ID == id {
-			n = i
-			hasID = true
-		}
-	}
-	if !hasID {
-		return fmt.Errorf("ID %d is not exist in Global task", id)
+	t, err := removeTaskByID(p.Tasks, id)
+	if err != nil {
+		return err
 	}
 
-	p.Tasks = p.Tasks[:n+copy(p.Tasks[:n], p.Tasks[n+1:])]
+	p.Tasks = t
 
 	if err := SaveProject(p); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func getNextID(tasks []model.Task) int {
+	id := 0
+	for _, v := range tasks {
+		if id <= v.ID {
+			id = v.ID + 1
+		}
+	}
+
+	return id
+}
+
+func removeTaskByID(tasks []model.Task, id int) ([]model.Task, error) {
+	n := 0
+	hasID := false
+	for i, v := range tasks {
+		if v.ID == id {
+			n = i
+			hasID = true
+		}
+	}
+	if !hasID {
+		return tasks, fmt.Errorf("ID %d is not exist", id)
+	}
+
+	return tasks[:n+copy(tasks[:n], tasks[n+1:])], nil
 }
