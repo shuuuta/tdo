@@ -139,3 +139,48 @@ func TestRemoveTask(t *testing.T) {
 		t.Fatal("expected error for non-existent ID")
 	}
 }
+
+func TestRemoveGlobalTask(t *testing.T) {
+	configDir = t.TempDir()
+
+	targetT := "target title"
+	remainT := "remain title"
+
+	p := &model.Project{
+		IsGlobal: true,
+		Tasks: []model.Task{
+			{
+				ID:    0,
+				Title: remainT,
+			},
+			{
+				ID:    1,
+				Title: targetT,
+			},
+		},
+	}
+
+	if err := SaveProject(p); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := RemoveGlobalTask(1); err != nil {
+		t.Fatal(err)
+	}
+
+	got1, err := LoadGlobalProject()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(got1.Tasks) != 1 {
+		t.Fatalf("expect number of task is 1, got %d", len(got1.Tasks))
+	}
+	if got1.Tasks[0].Title != remainT {
+		t.Fatalf("expect %q, got %q", remainT, got1.Tasks[0].Title)
+	}
+
+	if err := RemoveGlobalTask(9); err == nil {
+		t.Fatal("expected error for non-existent ID")
+	}
+}

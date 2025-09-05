@@ -117,3 +117,28 @@ func RemoveTask(projectPath string, id int) error {
 
 	return nil
 }
+
+func RemoveGlobalTask(id int) error {
+	p, err := LoadGlobalProject()
+	if err != nil {
+		return err
+	}
+
+	n := 0
+	hasID := false
+	for i, v := range p.Tasks {
+		if v.ID == id {
+			n = i
+			hasID = true
+		}
+	}
+	if !hasID {
+		return fmt.Errorf("ID %d is not exist in Global task", id)
+	}
+
+	p.Tasks = p.Tasks[:n+copy(p.Tasks[:n], p.Tasks[n+1:])]
+
+	SaveProject(p)
+
+	return nil
+}
