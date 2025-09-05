@@ -46,6 +46,10 @@ func SaveProject(project *model.Project) error {
 		fname = h + ".json"
 	}
 
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		return err
+	}
+
 	fpath := filepath.Join(configDir, fname)
 	if err := os.WriteFile(fpath, j, 0644); err != nil {
 		return err
