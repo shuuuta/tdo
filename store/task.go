@@ -46,7 +46,9 @@ func AddTask(projectPath, title string) (*model.Task, error) {
 
 	p.Tasks = append(p.Tasks, t)
 
-	SaveProject(p)
+	if err := SaveProject(p); err != nil {
+		return &t, err
+	}
 
 	return &t, nil
 }
@@ -88,7 +90,9 @@ func AddGlobalTask(title string) (*model.Task, error) {
 
 	p.Tasks = append(p.Tasks, t)
 
-	SaveProject(p)
+	if err := SaveProject(p); err != nil {
+		return &t, err
+	}
 
 	return &t, nil
 }
@@ -138,7 +142,9 @@ func RemoveGlobalTask(id int) error {
 
 	p.Tasks = p.Tasks[:n+copy(p.Tasks[:n], p.Tasks[n+1:])]
 
-	SaveProject(p)
+	if err := SaveProject(p); err != nil {
+		return err
+	}
 
 	return nil
 }
