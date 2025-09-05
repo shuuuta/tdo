@@ -69,7 +69,7 @@ func TestSaveAndLoadGlobal(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got, err := LoadGlobal()
+	got, err := LoadGlobalProject()
 	if err != nil {
 		t.Fatal(err)
 	}

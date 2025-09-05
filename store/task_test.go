@@ -59,7 +59,7 @@ func TestAddGlobalTask(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	lp1, err := LoadGlobal()
+	lp1, err := LoadGlobalProject()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func TestAddGlobalTask(t *testing.T) {
 	title2 := "add extra task"
 	AddGlobalTask(title2)
 
-	lp2, err := LoadGlobal()
+	lp2, err := LoadGlobalProject()
 	if err != nil {
 		t.Fatal(err)
 	}

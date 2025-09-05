@@ -73,7 +73,7 @@ func LoadProject(projectPath string) (*model.Project, error) {
 	return &p, nil
 }
 
-func LoadGlobal() (*model.Project, error) {
+func LoadGlobalProject() (*model.Project, error) {
 	var p model.Project
 
 	d, err := os.ReadFile(filepath.Join(configDir, "global.json"))

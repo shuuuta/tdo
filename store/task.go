@@ -53,7 +53,7 @@ func AddTask(projectPath, title string) (*model.Task, error) {
 func AddGlobalTask(title string) (*model.Task, error) {
 	t := model.Task{}
 
-	p, err := LoadGlobal()
+	p, err := LoadGlobalProject()
 	if err != nil {
 		if os.IsNotExist(err) {
 			t.ID = 0
