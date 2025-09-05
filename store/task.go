@@ -51,7 +51,45 @@ func AddTask(projectPath, title string) (*model.Task, error) {
 }
 
 func AddGlobalTask(title string) (*model.Task, error) {
-	return nil, nil
+	t := model.Task{}
+
+	p, err := LoadGlobal()
+	if err != nil {
+		if os.IsNotExist(err) {
+			t.ID = 0
+			t.Title = title
+			t.CreatedAt = time.Now().UTC()
+
+			p := model.Project{
+				IsGlobal: true,
+				Tasks:    []model.Task{t},
+			}
+
+			if err := SaveProject(&p); err != nil {
+				return &t, err
+			}
+			return &t, nil
+		} else {
+			return &t, err
+		}
+	}
+
+	id := 0
+	for _, v := range p.Tasks {
+		if id <= v.ID {
+			id = v.ID + 1
+		}
+	}
+
+	t.ID = id
+	t.Title = title
+	t.CreatedAt = time.Now().UTC()
+
+	p.Tasks = append(p.Tasks, t)
+
+	SaveProject(p)
+
+	return &t, nil
 }
 
 // // タスク完了（MVPでは削除）
