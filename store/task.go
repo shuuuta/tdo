@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 	"os"
+	"slices"
 	"time"
 
 	"github.com/shuuuta/tdo/model"
@@ -151,5 +152,5 @@ func removeTaskByID(tasks []model.Task, id int) ([]model.Task, error) {
 		return tasks, fmt.Errorf("ID %d is not exist", id)
 	}
 
-	return tasks[:n+copy(tasks[:n], tasks[n+1:])], nil
+	return slices.Delete(tasks, n, n+1), nil
 }

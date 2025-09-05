@@ -184,3 +184,66 @@ func TestRemoveGlobalTask(t *testing.T) {
 		t.Fatal("expected error for non-existent ID")
 	}
 }
+
+func TestGetNextID(t *testing.T) {
+	var tasks []model.Task
+	id1 := getNextID(tasks)
+	if id1 != 0 {
+		t.Fatalf("expect 0, got %d", id1)
+	}
+
+	tasks = append(tasks, model.Task{
+		ID: 6,
+	})
+	id2 := getNextID(tasks)
+	if id2 != 7 {
+		t.Fatalf("expect 7, got %d", id2)
+	}
+
+	tasks = append(tasks, model.Task{ID: 1}, model.Task{ID: 3}, model.Task{ID: 8})
+	id3 := getNextID(tasks)
+	if id3 != 9 {
+		t.Fatalf("expect 9, got %d", id3)
+	}
+}
+
+func TestRemoveTaskByID(t *testing.T) {
+	var tasks1 []model.Task
+	if _, err := removeTaskByID(tasks1, 1); err == nil {
+		t.Fatal("expect error for non-existent ID")
+	}
+
+	tasks2 := []model.Task{
+		{ID: 0},
+		{ID: 2},
+		{ID: 4},
+		{ID: 7},
+		{ID: 9},
+	}
+	tasks2, _ = removeTaskByID(tasks2, 0)
+	tasks2, _ = removeTaskByID(tasks2, 4)
+	tasks2, _ = removeTaskByID(tasks2, 9)
+	exp2 := []model.Task{
+		{ID: 2},
+		{ID: 7},
+	}
+	if !cmp.Equal(tasks2, exp2) {
+		t.Fatalf("expect %+v, got %+v", exp2, tasks2)
+	}
+
+	tasks3 := []model.Task{
+		{ID: 1},
+		{ID: 2},
+		{ID: 2},
+		{ID: 7},
+	}
+	tasks3, _ = removeTaskByID(tasks3, 2)
+	exp3 := []model.Task{
+		{ID: 1},
+		{ID: 2},
+		{ID: 7},
+	}
+	if !cmp.Equal(tasks3, exp3) {
+		t.Fatalf("expect %+v, got %+v", exp3, tasks3)
+	}
+}
