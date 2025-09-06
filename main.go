@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/shuuuta/tdo/cmd"
+)
 
 func main() {
-	fmt.Println("Hello")
+	cmd.Execute()
 }
