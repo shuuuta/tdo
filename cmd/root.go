@@ -9,8 +9,11 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "tdo",
-	Short: "short",
-	Long:  `Long`,
+	Short: "A simple todo manager for projects and global tasks",
+	Long: `Tdo is a command-line todo manager that helps you organize tasks
+both globally and per Git project. Tasks are automatically associated
+with the current Git repository, or you can manage global tasks that
+are available everywhere.`,
 	Run: func(cmd *cobra.Command, arts []string) {
 		fmt.Println("bar")
 	},

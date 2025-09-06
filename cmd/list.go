@@ -16,13 +16,16 @@ var listGlobal bool
 func init() {
 	rootCmd.AddCommand(listCmd)
 
-	listCmd.Flags().BoolVarP(&listGlobal, "global", "g", false, "list global flag usage")
+	listCmd.Flags().BoolVarP(&listGlobal, "global", "g", false, "show global tasks")
 }
 
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "list short",
-	Long:  `list Long`,
+	Short: "List tasks for current project or global tasks",
+	Long: `List all tasks for the current Git project. If no Git repository
+is detected or the --global flag is used, global tasks will be shown instead.
+
+Tasks are numbered for easy reference when using other commands.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cwd, err := os.Getwd()
 		if err != nil {
@@ -47,18 +50,18 @@ var listCmd = &cobra.Command{
 				}
 				log.Logf("LoadGlobalProject error: %v", err)
 				fmt.Fprintln(os.Stderr, err)
-				fmt.Fprintln(os.Stderr, "[error] Unnable to retrieve global tasks")
+				fmt.Fprintln(os.Stderr, "[error] Unable to retrieve global tasks")
 				os.Exit(1)
 			}
 		} else {
 			p, err = store.LoadProject(pRoot)
 			if err != nil {
 				if os.IsNotExist(err) {
-					fmt.Println("Project task is Not exist")
+					fmt.Println("Project task is not exist")
 					return
 				}
 				log.Logf("LoadProject error: %v", err)
-				fmt.Fprintln(os.Stderr, "[error] Unnable to retrieve project tasks")
+				fmt.Fprintln(os.Stderr, "[error] Unable to retrieve project tasks")
 				os.Exit(1)
 			}
 		}
