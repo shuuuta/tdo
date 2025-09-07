@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/shuuuta/tdo/log"
 	"github.com/spf13/cobra"
 )
 
@@ -20,6 +21,7 @@ are available everywhere.`,
 }
 
 func Execute() {
+	log.Init()
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

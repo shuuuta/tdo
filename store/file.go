@@ -23,6 +23,10 @@ func init() {
 	configDir = path.Join(home, ".config", "tdo")
 }
 
+func SetConfigDir(dir string) {
+	configDir = dir
+}
+
 func SaveProject(project *model.Project) error {
 	if project.IsGlobal && project.ProjectPath != "" {
 		return fmt.Errorf("global project must not have project path.")

@@ -29,13 +29,13 @@ Tasks are numbered for easy reference when using other commands.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cwd, err := os.Getwd()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			cmd.PrintErrln(err)
 			os.Exit(1)
 		}
 
 		pRoot, err := project.DetectRoot(cwd)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			cmd.PrintErrln(err)
 			os.Exit(1)
 		}
 
@@ -45,35 +45,42 @@ Tasks are numbered for easy reference when using other commands.`,
 			p, err = store.LoadGlobalProject()
 			if err != nil {
 				if os.IsNotExist(err) {
-					fmt.Println("Global task is Not exist")
+					cmd.Println("No global tasks found")
 					return
 				}
 				log.Logf("LoadGlobalProject error: %v", err)
-				fmt.Fprintln(os.Stderr, err)
-				fmt.Fprintln(os.Stderr, "[error] Unable to retrieve global tasks")
+				cmd.PrintErrln(err)
+				cmd.PrintErrln("[error] Unable to retrieve global tasks")
 				os.Exit(1)
 			}
 		} else {
 			p, err = store.LoadProject(pRoot)
 			if err != nil {
 				if os.IsNotExist(err) {
-					fmt.Println("Project task is not exist")
+					cmd.PrintErrln("No project tasks found")
 					return
 				}
 				log.Logf("LoadProject error: %v", err)
-				fmt.Fprintln(os.Stderr, "[error] Unable to retrieve project tasks")
+				cmd.PrintErrln("[error] Unable to retrieve project tasks")
 				os.Exit(1)
 			}
 		}
 
-		if p.IsGlobal {
-			fmt.Println("Global tasks")
-		} else {
-			fmt.Println(p.ProjectPath)
-		}
-		fmt.Println("========================")
-		for i, v := range p.Tasks {
-			fmt.Printf("[ ] %d: %s\n", i+1, v.Title)
-		}
+		cmd.Printf("%s", viewList(p))
 	},
+}
+
+func viewList(project *model.Project) string {
+	var out string
+	if project.IsGlobal {
+		out = fmt.Sprintln("Global tasks")
+	} else {
+		out = fmt.Sprintln(project.ProjectPath)
+	}
+	out = out + fmt.Sprintln("========================")
+	for i, v := range project.Tasks {
+		out = out + fmt.Sprintf("[ ] %d: %s\n", i+1, v.Title)
+	}
+
+	return out
 }
