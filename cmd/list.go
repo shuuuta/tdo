@@ -27,47 +27,51 @@ is detected or the --global flag is used, global tasks will be shown instead.
 
 Tasks are numbered for easy reference when using other commands.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cwd, err := os.Getwd()
-		if err != nil {
+		if err := runList(cmd); err != nil {
 			cmd.PrintErrln(err)
 			os.Exit(1)
 		}
-
-		pRoot, err := project.DetectRoot(cwd)
-		if err != nil {
-			cmd.PrintErrln(err)
-			os.Exit(1)
-		}
-
-		var p *model.Project
-
-		if pRoot == "" || listGlobal {
-			p, err = store.LoadGlobalProject()
-			if err != nil {
-				if os.IsNotExist(err) {
-					cmd.Println("No global tasks found")
-					return
-				}
-				log.Logf("LoadGlobalProject error: %v", err)
-				cmd.PrintErrln(err)
-				cmd.PrintErrln("[error] Unable to retrieve global tasks")
-				os.Exit(1)
-			}
-		} else {
-			p, err = store.LoadProject(pRoot)
-			if err != nil {
-				if os.IsNotExist(err) {
-					cmd.PrintErrln("No project tasks found")
-					return
-				}
-				log.Logf("LoadProject error: %v", err)
-				cmd.PrintErrln("[error] Unable to retrieve project tasks")
-				os.Exit(1)
-			}
-		}
-
-		cmd.Printf("%s", viewList(p))
 	},
+}
+
+func runList(cmd *cobra.Command) error {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("unable to get working directory: %w", err)
+	}
+
+	pRoot, err := project.DetectRoot(cwd)
+	if err != nil {
+		return fmt.Errorf("unable to detect project root: %w", err)
+	}
+
+	var p *model.Project
+
+	if pRoot == "" || listGlobal {
+		p, err = store.LoadGlobalProject()
+		if err != nil {
+			if os.IsNotExist(err) {
+				cmd.Println("No global tasks found")
+				return nil
+			}
+			log.Logf("LoadGlobalProject error: %v", err)
+			return fmt.Errorf("unable to retrieve global tasks: %w\n", err)
+		}
+	} else {
+		p, err = store.LoadProject(pRoot)
+		if err != nil {
+			if os.IsNotExist(err) {
+				cmd.Println("No project tasks found")
+				return nil
+			}
+			log.Logf("LoadProject error: %v", err)
+			return fmt.Errorf("unable to retrieve project tasks: %w\n", err)
+		}
+	}
+
+	cmd.Printf("%s", viewList(p))
+
+	return nil
 }
 
 func viewList(project *model.Project) string {

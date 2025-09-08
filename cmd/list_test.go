@@ -9,24 +9,6 @@ import (
 	"github.com/shuuuta/tdo/store"
 )
 
-func setupTest(t *testing.T, configPath string) func() {
-	oListGlobal := listGlobal
-
-	return func() {
-		listGlobal = oListGlobal
-
-		files, err := os.ReadDir(configPath)
-		if err != nil {
-			t.Fatal(err)
-		}
-		for _, v := range files {
-			if err := os.Remove(filepath.Join(configPath, v.Name())); err != nil {
-				t.Fatal(err)
-			}
-		}
-	}
-}
-
 func TestListCmd(t *testing.T) {
 	tmpDir := t.TempDir()
 
