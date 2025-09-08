@@ -10,27 +10,13 @@ import (
 )
 
 func TestListCmd(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	configPath := filepath.Join(tmpDir, "conf")
-	os.MkdirAll(configPath, 0755)
-	store.SetConfigDir(configPath)
-
-	projectPath := filepath.Join(tmpDir, "project")
-	os.MkdirAll(filepath.Join(projectPath, ".git"), 0755)
-
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.Chdir(cwd)
+	te := setupTestEnv(t)
 
 	t.Run("Global task does not exist", func(t *testing.T) {
-		if err := os.Chdir(projectPath); err != nil {
+		if err := os.Chdir(te.ProjectDir); err != nil {
 			t.Fatal(err)
 		}
-		cleanup := setupTest(t, configPath)
-		defer cleanup()
+		defer te.Cleanup()
 
 		got, err := executeCommand("list", "-g")
 		if err != nil {
@@ -44,11 +30,10 @@ func TestListCmd(t *testing.T) {
 	})
 
 	t.Run("Project task does not exist", func(t *testing.T) {
-		if err := os.Chdir(projectPath); err != nil {
+		if err := os.Chdir(te.ProjectDir); err != nil {
 			t.Fatal(err)
 		}
-		cleanup := setupTest(t, configPath)
-		defer cleanup()
+		defer te.Cleanup()
 
 		got, err := executeCommand("list")
 		if err != nil {
@@ -62,13 +47,12 @@ func TestListCmd(t *testing.T) {
 	})
 
 	t.Run("Show tasks in project path", func(t *testing.T) {
-		if err := os.Chdir(projectPath); err != nil {
+		if err := os.Chdir(te.ProjectDir); err != nil {
 			t.Fatal(err)
 		}
-		cleanup := setupTest(t, configPath)
-		defer cleanup()
+		defer te.Cleanup()
 
-		realPPath, err := filepath.EvalSymlinks(projectPath)
+		realPPath, err := filepath.EvalSymlinks(te.ProjectDir)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -99,18 +83,15 @@ func TestListCmd(t *testing.T) {
 	})
 
 	t.Run("Show global tasks in project path", func(t *testing.T) {
-		if err := os.Chdir(projectPath); err != nil {
+		if err := os.Chdir(te.ProjectDir); err != nil {
 			t.Fatal(err)
 		}
-		cleanup := setupTest(t, configPath)
-		defer cleanup()
+		defer te.Cleanup()
 
-		_, err = store.AddGlobalTask("sample task 1")
-		if err != nil {
+		if _, err := store.AddGlobalTask("sample task 1"); err != nil {
 			t.Fatal(err)
 		}
-		_, err = store.AddGlobalTask("sample task 2")
-		if err != nil {
+		if _, err := store.AddGlobalTask("sample task 2"); err != nil {
 			t.Fatal(err)
 		}
 
@@ -131,18 +112,15 @@ func TestListCmd(t *testing.T) {
 	})
 
 	t.Run("Show global tasks out of project path", func(t *testing.T) {
-		if err := os.Chdir(tmpDir); err != nil {
+		if err := os.Chdir(te.TmpDir); err != nil {
 			t.Fatal(err)
 		}
-		cleanup := setupTest(t, configPath)
-		defer cleanup()
+		defer te.Cleanup()
 
-		_, err = store.AddGlobalTask("sample task 1")
-		if err != nil {
+		if _, err := store.AddGlobalTask("sample task 1"); err != nil {
 			t.Fatal(err)
 		}
-		_, err = store.AddGlobalTask("sample task 2")
-		if err != nil {
+		if _, err := store.AddGlobalTask("sample task 2"); err != nil {
 			t.Fatal(err)
 		}
 
