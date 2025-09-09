@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/shuuuta/tdo/model"
@@ -52,17 +51,10 @@ func TestListCmd(t *testing.T) {
 		}
 		defer te.Cleanup()
 
-		realPPath, err := filepath.EvalSymlinks(te.ProjectDir)
-		if err != nil {
+		if _, err := store.AddTask(te.ProjectDir, "sample task 1"); err != nil {
 			t.Fatal(err)
 		}
-
-		_, err = store.AddTask(realPPath, "sample task 1")
-		if err != nil {
-			t.Fatal(err)
-		}
-		_, err = store.AddTask(realPPath, "sample task 2")
-		if err != nil {
+		if _, err := store.AddTask(te.ProjectDir, "sample task 2"); err != nil {
 			t.Fatal(err)
 		}
 
@@ -71,7 +63,7 @@ func TestListCmd(t *testing.T) {
 			t.Fatal(err)
 		}
 		exp := viewList(&model.Project{
-			ProjectPath: realPPath,
+			ProjectPath: te.ProjectDir,
 			Tasks: []model.Task{
 				{Title: "sample task 1"},
 				{Title: "sample task 2"},
