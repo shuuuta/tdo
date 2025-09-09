@@ -17,7 +17,7 @@ var doneGlobal bool
 func init() {
 	rootCmd.AddCommand(doneCmd)
 
-	doneCmd.Flags().BoolVarP(&doneGlobal, "global", "g", false, "mark as done global task")
+	doneCmd.Flags().BoolVarP(&doneGlobal, "global", "g", false, "mark global tasks as done")
 }
 
 var doneCmd = &cobra.Command{
