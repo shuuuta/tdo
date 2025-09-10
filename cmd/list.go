@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/shuuuta/tdo/log"
 	"github.com/shuuuta/tdo/model"
@@ -79,7 +80,7 @@ func viewList(project *model.Project) string {
 	if project.IsGlobal {
 		out = fmt.Sprintln("Global tasks")
 	} else {
-		out = fmt.Sprintln(project.ProjectPath)
+		out = fmt.Sprintln(filepath.Base(project.ProjectPath))
 	}
 	out = out + fmt.Sprintln("========================")
 	for i, v := range project.Tasks {
