@@ -315,6 +315,33 @@ func TestDoneTask(t *testing.T) {
 		}
 	})
 
+	t.Run("Task file does not exist", func(t *testing.T) {
+		if err := os.Chdir(te.ProjectDir); err != nil {
+			t.Fatal(err)
+		}
+		defer te.Cleanup()
+
+		got1, err := executeCommand("done", "1")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		exp1 := "No project tasks found\n"
+		if got1 != exp1 {
+			t.Fatalf("expect %q, got %q", exp1, got1)
+		}
+
+		got2, err := executeCommand("done", "-g", "1")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		exp2 := "No global tasks found\n"
+		if got2 != exp2 {
+			t.Fatalf("expect %q, got %q", exp2, got2)
+		}
+	})
+
 	t.Run("Handle invalid index", func(t *testing.T) {
 		if err := os.Chdir(te.TmpDir); err != nil {
 			t.Fatal(err)

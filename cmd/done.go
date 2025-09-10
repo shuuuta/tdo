@@ -45,10 +45,18 @@ func runDone(cmd *cobra.Command, args []string) error {
 	var p *model.Project
 	if pRoot == "" || doneGlobal {
 		if p, err = store.LoadGlobalProject(); err != nil {
+			if os.IsNotExist(err) {
+				cmd.Println("No global tasks found")
+				return nil
+			}
 			return fmt.Errorf("unable to retrieve global tasks: %w\n", err)
 		}
 	} else {
 		if p, err = store.LoadProject(pRoot); err != nil {
+			if os.IsNotExist(err) {
+				cmd.Println("No project tasks found")
+				return nil
+			}
 			return fmt.Errorf("unable to retrieve project tasks: %w\n", err)
 		}
 	}
