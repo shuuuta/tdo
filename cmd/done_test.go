@@ -30,29 +30,14 @@ func TestDoneTask(t *testing.T) {
 			}
 		}
 
-		executeCommand("done", "2")
-
-		got1, err := store.LoadProject(te.ProjectDir)
+		got1, err := executeCommand("done", "2")
 		if err != nil {
 			t.Fatal(err)
 		}
-
-		var gt1 []string
-		for _, v := range got1.Tasks {
-			gt1 = append(gt1, v.Title)
+		exp1 := viewDone(2, "sample task 2")
+		if got1 != exp1 {
+			t.Fatalf("expect %q, got %q", exp1, got1)
 		}
-
-		exp1 := []string{
-			"sample task 1",
-			"sample task 3",
-			"sample task 4",
-			"sample task 5",
-		}
-		if !cmp.Equal(gt1, exp1) {
-			t.Fatalf("expect\n  %v\ngot\n  %v", exp1, gt1)
-		}
-
-		executeCommand("done", "2")
 
 		got2, err := store.LoadProject(te.ProjectDir)
 		if err != nil {
@@ -66,11 +51,33 @@ func TestDoneTask(t *testing.T) {
 
 		exp2 := []string{
 			"sample task 1",
+			"sample task 3",
 			"sample task 4",
 			"sample task 5",
 		}
 		if !cmp.Equal(gt2, exp2) {
 			t.Fatalf("expect\n  %v\ngot\n  %v", exp2, gt2)
+		}
+
+		executeCommand("done", "2")
+
+		got3, err := store.LoadProject(te.ProjectDir)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		var gt3 []string
+		for _, v := range got3.Tasks {
+			gt3 = append(gt3, v.Title)
+		}
+
+		exp3 := []string{
+			"sample task 1",
+			"sample task 4",
+			"sample task 5",
+		}
+		if !cmp.Equal(gt3, exp3) {
+			t.Fatalf("expect\n  %v\ngot\n  %v", exp3, gt3)
 		}
 	})
 
@@ -200,7 +207,6 @@ func TestDoneTask(t *testing.T) {
 		}
 	})
 
-	//5. 複数インデックス削除
 	t.Run("Done multiple tasks by index", func(t *testing.T) {
 		if err := os.Chdir(te.ProjectDir); err != nil {
 			t.Fatal(err)
@@ -220,27 +226,17 @@ func TestDoneTask(t *testing.T) {
 			}
 		}
 
-		executeCommand("done", "-g", "3", "5", "2")
-
-		got1, err := store.LoadGlobalProject()
+		got1, err := executeCommand("done", "-g", "3", "5", "2")
 		if err != nil {
 			t.Fatal(err)
 		}
-
-		var gt1 []string
-		for _, v := range got1.Tasks {
-			gt1 = append(gt1, v.Title)
+		var exp1 string
+		for _, id := range []int{2, 3, 5} {
+			exp1 = exp1 + viewDone(id, titles[id-1])
 		}
-
-		exp1 := []string{
-			"sample task 1",
-			"sample task 4",
+		if exp1 != got1 {
+			t.Fatalf("expect:\n%s, got:\n%s", exp1, got1)
 		}
-		if !cmp.Equal(gt1, exp1) {
-			t.Fatalf("expect\n  %v\ngot\n  %v", exp1, gt1)
-		}
-
-		executeCommand("done", "-g", "2", "1")
 
 		got2, err := store.LoadGlobalProject()
 		if err != nil {
@@ -252,8 +248,28 @@ func TestDoneTask(t *testing.T) {
 			gt2 = append(gt2, v.Title)
 		}
 
-		if len(got2.Tasks) != 0 {
-			t.Fatalf("expect empty\ngot\n  %v", gt2)
+		exp2 := []string{
+			"sample task 1",
+			"sample task 4",
+		}
+		if !cmp.Equal(gt2, exp2) {
+			t.Fatalf("expect\n  %v\ngot\n  %v", exp2, gt2)
+		}
+
+		executeCommand("done", "-g", "2", "1")
+
+		got3, err := store.LoadGlobalProject()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		var gt3 []string
+		for _, v := range got3.Tasks {
+			gt3 = append(gt3, v.Title)
+		}
+
+		if len(got3.Tasks) != 0 {
+			t.Fatalf("expect empty\ngot\n  %v", gt3)
 		}
 	})
 
@@ -318,20 +334,20 @@ func TestDoneTask(t *testing.T) {
 			}
 		}
 
-		if err := runDone([]string{"6", "2", "2"}); err == nil {
+		if _, err := executeCommand("done", "6", "2", "2"); err == nil {
 			t.Fatal("expect error")
 		}
 
-		if err := runDone([]string{"-6", "1", "2"}); err == nil {
+		if _, err := executeCommand("done", "-6", "1", "2"); err == nil {
 			t.Fatal("expect error with argument is negative")
 		}
-		if err := runDone([]string{"0", "2"}); err == nil {
+		if _, err := executeCommand("done", "0", "2"); err == nil {
 			t.Fatal("expect error with argument is zero")
 		}
-		if err := runDone([]string{"abc", "2"}); err == nil {
+		if _, err := executeCommand("done", "abc", "2"); err == nil {
 			t.Fatal("expect error with argument is string")
 		}
-		if err := runDone([]string{"1.5", "2"}); err == nil {
+		if _, err := executeCommand("done", "1.5", "2"); err == nil {
 			t.Fatal("expect error with argument is float")
 		}
 

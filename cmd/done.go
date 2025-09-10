@@ -27,11 +27,11 @@ var doneCmd = &cobra.Command{
   Multiple task indices can be provided as separate arguments.`,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runDone(args)
+		return runDone(cmd, args)
 	},
 }
 
-func runDone(args []string) error {
+func runDone(cmd *cobra.Command, args []string) error {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("unable to get working directory: %w", err)
@@ -68,8 +68,10 @@ func runDone(args []string) error {
 	slices.Sort(ids)
 	ids = slices.Compact(ids)
 
+	var out string
 	offset := 0
 	for _, id := range ids {
+		out = out + viewDone(id, p.Tasks[id-1-offset].Title)
 		p.Tasks = slices.Delete(p.Tasks, id-1-offset, id-offset)
 		offset++
 	}
@@ -77,5 +79,12 @@ func runDone(args []string) error {
 	if err := store.SaveProject(p); err != nil {
 		return err
 	}
+
+	cmd.Print(out)
+
 	return nil
+}
+
+func viewDone(id int, text string) string {
+	return fmt.Sprintf("[✔ ] %d: %s\n", id, text)
 }
