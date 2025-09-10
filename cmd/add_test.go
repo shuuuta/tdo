@@ -95,4 +95,30 @@ func TestAddTask(t *testing.T) {
 			t.Fatalf("expect %q, got %q", exp, err2.Error())
 		}
 	})
+
+	t.Run("Trim spaces", func(t *testing.T) {
+		if err := os.Chdir(te.ProjectDir); err != nil {
+			t.Fatal(err)
+		}
+		defer te.Cleanup()
+
+		_, err1 := executeCommand("add", " ")
+		if err1 == nil {
+			t.Fatal("expect error when arg contains only spaces")
+		}
+		exp1 := "argument cannot be empty"
+		if err1.Error() != exp1 {
+			t.Fatalf("expect %q, got %q", exp1, err1.Error())
+		}
+
+		got, err := executeCommand("add", "  sample test ")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		exp2 := "add project task:\n  - sample test\n"
+		if got != exp2 {
+			t.Fatalf("\nexpect %q,\ngot    %q", exp2, got)
+		}
+	})
 }

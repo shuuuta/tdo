@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/shuuuta/tdo/model"
 	"github.com/shuuuta/tdo/project"
@@ -47,12 +48,13 @@ func runAdd(cmd *cobra.Command, args []string) error {
 	if pRoot == "" || addGlobal {
 		title = "add global task:"
 		for _, v := range args {
-			if v == "" {
+			trimmed := strings.TrimSpace(v)
+			if trimmed == "" {
 				continue
 			}
-			t, err := store.AddGlobalTask(v)
+			t, err := store.AddGlobalTask(trimmed)
 			if err != nil {
-				errors = append(errors, fmt.Sprintf("Failed to add %s: %v", v, err))
+				errors = append(errors, fmt.Sprintf("Failed to add %s: %v", trimmed, err))
 				continue
 			}
 			tasks = append(tasks, t)
@@ -60,12 +62,13 @@ func runAdd(cmd *cobra.Command, args []string) error {
 	} else {
 		title = "add project task:"
 		for _, v := range args {
-			if v == "" {
+			trimmed := strings.TrimSpace(v)
+			if trimmed == "" {
 				continue
 			}
-			t, err := store.AddTask(pRoot, v)
+			t, err := store.AddTask(pRoot, trimmed)
 			if err != nil {
-				errors = append(errors, fmt.Sprintf("Failed to add %s: %v", v, err))
+				errors = append(errors, fmt.Sprintf("Failed to add %s: %v", trimmed, err))
 				continue
 			}
 			tasks = append(tasks, t)
