@@ -1,11 +1,8 @@
 package cmd
 
 import (
-	"bytes"
 	"os"
 	"testing"
-
-	"github.com/spf13/cobra"
 )
 
 func TestAddTask(t *testing.T) {
@@ -89,18 +86,13 @@ func TestAddTask(t *testing.T) {
 			t.Fatal("expect error when no args are provided")
 		}
 
-		buf := new(bytes.Buffer)
-		testCmd := &cobra.Command{}
-		testCmd.SetOut(buf)
-		testCmd.SetErr(buf)
-
-		err := runAdd(testCmd, []string{"", ""})
-		if err == nil {
+		_, err2 := executeCommand("add", "", "")
+		if err2 == nil {
 			t.Fatal("expect error when empty args are provided")
 		}
 		exp := "argument cannot be empty"
-		if err.Error() != exp {
-			t.Fatalf("expect %q, got %q", exp, err.Error())
+		if err2.Error() != exp {
+			t.Fatalf("expect %q, got %q", exp, err2.Error())
 		}
 	})
 }

@@ -27,11 +27,8 @@ var listCmd = &cobra.Command{
 is detected or the --global flag is used, global tasks will be shown instead.
 
 Tasks are numbered for easy reference when using other commands.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		if err := runList(cmd); err != nil {
-			cmd.PrintErrln(err)
-			os.Exit(1)
-		}
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runList(cmd)
 	},
 }
 

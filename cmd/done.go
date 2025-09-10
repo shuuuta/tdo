@@ -26,11 +26,8 @@ var doneCmd = &cobra.Command{
 	Long: `Mark one or more tasks as done by their index numbers, removing them from the list.
   Multiple task indices can be provided as separate arguments.`,
 	Args: cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		if err := runDone(args); err != nil {
-			cmd.PrintErrln(err)
-			os.Exit(1)
-		}
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runDone(args)
 	},
 }
 

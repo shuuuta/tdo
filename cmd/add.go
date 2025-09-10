@@ -25,11 +25,8 @@ var addCmd = &cobra.Command{
   Multiple task titles can be provided as separate arguments. If not in a Git
   repository, tasks are automatically added as global tasks.`,
 	Args: cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		if err := runAdd(cmd, args); err != nil {
-			cmd.PrintErrln(err)
-			os.Exit(1)
-		}
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runAdd(cmd, args)
 	},
 }
 
