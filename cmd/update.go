@@ -26,6 +26,20 @@ var updateCmd = &cobra.Command{
 	Long:  ``,
 	Args:  cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		//rl, err := readline.New("> ")
+		//if err != nil {
+		//	panic(err)
+		//}
+		//defer rl.Close()
+
+		//for {
+		//	line, err := rl.Readline()
+		//	if err != nil { // io.EOF
+		//		break
+		//	}
+		//	println(line)
+		//}
+		//return nil
 		return runUpdate(cmd, args)
 	},
 }
@@ -63,11 +77,11 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	title := args[0]
-	targetNum, err := strconv.Atoi(args[1])
+	title := args[1]
+	targetNum, err := strconv.Atoi(args[0])
 	if err != nil {
 		log.Logf("%s", err.Error())
-		return fmt.Errorf("task ID must be a number: %s", args[1])
+		return fmt.Errorf("task ID must be a number: %s", args[0])
 	}
 
 	if targetNum > len(p.Tasks) || targetNum < 0 {

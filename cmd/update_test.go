@@ -27,7 +27,7 @@ func TestUpdateTask(t *testing.T) {
 
 		exp1 := "update test"
 
-		got1, err := executeCommand("update", exp1, "1")
+		got1, err := executeCommand("update", "1", exp1)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -63,7 +63,7 @@ func TestUpdateTask(t *testing.T) {
 
 		exp1 := "update test"
 
-		got1, err := executeCommand("update", "-g", exp1, "1")
+		got1, err := executeCommand("update", "-g", "1", exp1)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -99,7 +99,7 @@ func TestUpdateTask(t *testing.T) {
 
 		exp1 := "update test"
 
-		got1, err := executeCommand("update", exp1, "1")
+		got1, err := executeCommand("update", "1", exp1)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -133,7 +133,7 @@ func TestUpdateTask(t *testing.T) {
 		}
 		defer te.Cleanup()
 
-		_, err1 := executeCommand("update", "  ", "1")
+		_, err1 := executeCommand("update", "1", "  ")
 		if err1 == nil {
 			t.Fatal("expect error when empty args are provided")
 		}
@@ -157,7 +157,7 @@ func TestUpdateTask(t *testing.T) {
 		}
 		defer te.Cleanup()
 
-		_, err1 := executeCommand("update", "sample task", "3")
+		_, err1 := executeCommand("update", "3", "sample task")
 		if err1 == nil {
 			t.Fatal("expect error when empty args are provided")
 		}
@@ -166,7 +166,7 @@ func TestUpdateTask(t *testing.T) {
 			t.Fatalf("expect %q, got %q", exp1, err1.Error())
 		}
 
-		_, err2 := executeCommand("update", "sample task", "'-1'")
+		_, err2 := executeCommand("update", "'-1'", "sample task")
 		if err2 == nil {
 			t.Fatal("expect error when empty args are provided")
 		}
