@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/chzyer/readline"
 	"github.com/shuuuta/tdo/log"
 	"github.com/shuuuta/tdo/model"
 	"github.com/shuuuta/tdo/project"
@@ -24,22 +25,8 @@ var updateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "",
 	Long:  ``,
-	Args:  cobra.ExactArgs(2),
+	Args:  cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		//rl, err := readline.New("> ")
-		//if err != nil {
-		//	panic(err)
-		//}
-		//defer rl.Close()
-
-		//for {
-		//	line, err := rl.Readline()
-		//	if err != nil { // io.EOF
-		//		break
-		//	}
-		//	println(line)
-		//}
-		//return nil
 		return runUpdate(cmd, args)
 	},
 }
@@ -77,7 +64,6 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	title := args[1]
 	targetNum, err := strconv.Atoi(args[0])
 	if err != nil {
 		log.Logf("%s", err.Error())
@@ -86,6 +72,24 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 
 	if targetNum > len(p.Tasks) || targetNum < 0 {
 		return fmt.Errorf("unable to find task: ID %d\n", targetNum)
+	}
+
+	var title string
+	if len(args) == 1 {
+		rl, err := readline.New("> ")
+		if err != nil {
+			panic(err)
+		}
+		defer rl.Close()
+
+		current := p.Tasks[targetNum-1].Title
+		rl.WriteStdin([]byte(current))
+
+		if title, err = rl.Readline(); err != nil {
+			return err
+		}
+	} else {
+		title = args[1]
 	}
 
 	var gotTask *model.Task
