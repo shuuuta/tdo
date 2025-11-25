@@ -27,7 +27,7 @@ var updateCmd = &cobra.Command{
 	Long: `Update the title of an existing task by its index number.
   If the new title is not provided, an interactive editor will open with the
   current task title. Use --global to update global tasks.`,
-	Args:  cobra.RangeArgs(1, 2),
+	Args: cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runUpdate(cmd, args)
 	},
@@ -72,7 +72,7 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("task ID must be a number: %s", args[0])
 	}
 
-	if targetNum > len(p.Tasks) || targetNum < 0 {
+	if targetNum > len(p.Tasks) || targetNum < 1 {
 		return fmt.Errorf("unable to find task: ID %d\n", targetNum)
 	}
 
@@ -80,12 +80,14 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	if len(args) == 1 {
 		rl, err := readline.New("> ")
 		if err != nil {
-			panic(err)
+			return err
 		}
 		defer rl.Close()
 
 		current := p.Tasks[targetNum-1].Title
-		rl.WriteStdin([]byte(current))
+		if _, err := rl.WriteStdin([]byte(current)); err != nil {
+			return nil
+		}
 
 		if title, err = rl.Readline(); err != nil {
 			return err

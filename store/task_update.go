@@ -48,7 +48,7 @@ func updateTaskFromProject(project *model.Project, title string, id int) (*model
 	}
 
 	if !found {
-		return &t, fmt.Errorf("task %d did not find", id)
+		return &t, fmt.Errorf("task %d was not find", id)
 	}
 
 	if err := SaveProject(project); err != nil {
