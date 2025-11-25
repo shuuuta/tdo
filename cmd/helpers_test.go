@@ -35,6 +35,7 @@ func setupTestEnv(t *testing.T) *testEnv {
 	oListGlobal := listGlobal
 	oAddGlobal := addGlobal
 	oDoneGlobal := doneGlobal
+	oUpdateGlobal := updateGlobal
 
 	configDir := filepath.Join(tmpDir, "conf")
 	os.MkdirAll(configDir, 0755)
@@ -52,6 +53,7 @@ func setupTestEnv(t *testing.T) *testEnv {
 		listGlobal = oListGlobal
 		addGlobal = oAddGlobal
 		doneGlobal = oDoneGlobal
+		updateGlobal = oUpdateGlobal
 
 		files, err := os.ReadDir(configDir)
 		if err != nil {
