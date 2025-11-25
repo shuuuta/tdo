@@ -20,7 +20,7 @@ func init() {
 }
 
 var addCmd = &cobra.Command{
-	Use:   "add [task titles...]",
+	Use:   "add <task titles...>",
 	Short: "Add one or more tasks to current project or global tasks",
 	Long: `Add tasks to the current Git project, or use --global to add global tasks.
   Multiple task titles can be provided as separate arguments. If not in a Git

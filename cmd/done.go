@@ -21,7 +21,7 @@ func init() {
 }
 
 var doneCmd = &cobra.Command{
-	Use:   "done [task id...]",
+	Use:   "done <task id...>",
 	Short: "Mark tasks as done (delete them)",
 	Long: `Mark one or more tasks as done by their index numbers, removing them from the list.
   Multiple task indices can be provided as separate arguments.`,
