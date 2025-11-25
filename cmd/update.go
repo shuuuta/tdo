@@ -29,11 +29,13 @@ var updateCmd = &cobra.Command{
   current task title. Use --global to update global tasks.`,
 	Args: cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runUpdate(cmd, args)
+		return runUpdate(cmd, args, newReadline)
 	},
 }
 
-func runUpdate(cmd *cobra.Command, args []string) error {
+type LineReaderFactory func(prompt string) (LineReader, error)
+
+func runUpdate(cmd *cobra.Command, args []string, newReader LineReaderFactory) error {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("unable to get working directory: %w", err)
@@ -78,15 +80,15 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 
 	var title string
 	if len(args) == 1 {
-		rl, err := readline.New("> ")
+		rl, err := newReader("> ")
 		if err != nil {
-			return err
+			return fmt.Errorf("unable to create readline: %w", err)
 		}
 		defer rl.Close()
 
 		current := p.Tasks[targetNum-1].Title
 		if _, err := rl.WriteStdin([]byte(current)); err != nil {
-			return nil
+			return fmt.Errorf("unable to set initial text: %w", err)
 		}
 
 		if title, err = rl.Readline(); err != nil {
@@ -123,4 +125,26 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 
 func viewUpdate(id int, text string) string {
 	return fmt.Sprintf("[ ] %d: %s\n", id, text)
+}
+
+type LineReader interface {
+	Readline() (string, error)
+	WriteStdin([]byte) (int, error)
+	Close() error
+}
+
+type readlineWrapper struct {
+	*readline.Instance
+}
+
+func (r *readlineWrapper) WriteStdin(b []byte) (int, error) {
+	return r.Instance.WriteStdin(b)
+}
+
+func newReadline(prompt string) (LineReader, error) {
+	rl, err := readline.New(prompt)
+	if err != nil {
+		return nil, err
+	}
+	return &readlineWrapper{Instance: rl}, nil
 }

@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"testing"
 
 	"github.com/shuuuta/tdo/store"
+	"github.com/spf13/cobra"
 )
 
 func TestUpdateTask(t *testing.T) {
@@ -23,7 +25,6 @@ func TestUpdateTask(t *testing.T) {
 		if _, err := store.AddTask(te.ProjectDir, "sample task 2"); err != nil {
 			t.Fatal(err)
 		}
-		defer te.Cleanup()
 
 		exp1 := "update test"
 
@@ -59,7 +60,6 @@ func TestUpdateTask(t *testing.T) {
 		if _, err := store.AddGlobalTask("sample task 2"); err != nil {
 			t.Fatal(err)
 		}
-		defer te.Cleanup()
 
 		exp1 := "update test"
 
@@ -95,7 +95,6 @@ func TestUpdateTask(t *testing.T) {
 		if _, err := store.AddGlobalTask("sample task 2"); err != nil {
 			t.Fatal(err)
 		}
-		defer te.Cleanup()
 
 		exp1 := "update test"
 
@@ -131,7 +130,6 @@ func TestUpdateTask(t *testing.T) {
 		if _, err := store.AddTask(te.ProjectDir, "sample task 2"); err != nil {
 			t.Fatal(err)
 		}
-		defer te.Cleanup()
 
 		_, err1 := executeCommand("update", "1", "  ")
 		if err1 == nil {
@@ -155,7 +153,6 @@ func TestUpdateTask(t *testing.T) {
 		if _, err := store.AddTask(te.ProjectDir, "sample task 2"); err != nil {
 			t.Fatal(err)
 		}
-		defer te.Cleanup()
 
 		_, err1 := executeCommand("update", "3", "sample task")
 		if err1 == nil {
@@ -175,4 +172,143 @@ func TestUpdateTask(t *testing.T) {
 			t.Fatalf("expect %q, got %q", exp2, err2.Error())
 		}
 	})
+}
+
+func TestUpdateTaskInteractive(t *testing.T) {
+	te := setupTestEnv(t)
+	t.Run("Update task with interactive mode", func(t *testing.T) {
+		if err := os.Chdir(te.ProjectDir); err != nil {
+			t.Fatal(err)
+		}
+		defer te.Cleanup()
+
+		originalTitle := "original task"
+		if _, err := store.AddTask(te.ProjectDir, originalTitle); err != nil {
+			t.Fatal(err)
+		}
+
+		newTitle := "update via interactive mode"
+		mockReader := func(prompt string) (LineReader, error) {
+			return &mockLineReader{
+				readlineFunc: func() (string, error) {
+					return newTitle, nil
+				},
+				writeStdinFunc: func(b []byte) (int, error) {
+					return len(b), nil
+				},
+				closeFunc: func() error {
+					return nil
+				},
+			}, nil
+		}
+
+		cmd := &cobra.Command{}
+		cmd.SetOut(new(bytes.Buffer))
+
+		if err := runUpdate(cmd, []string{"1"}, mockReader); err != nil {
+			t.Fatal(err)
+		}
+
+		p, err := store.LoadProject(te.ProjectDir)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if p.Tasks[0].Title != newTitle {
+			t.Fatalf("expect %q, got %q", newTitle, p.Tasks[0].Title)
+		}
+	})
+
+	t.Run("Interactive mode preserves original text", func(t *testing.T) {
+		if err := os.Chdir(te.ProjectDir); err != nil {
+			t.Fatal(err)
+		}
+		defer te.Cleanup()
+
+		originalTitle := "original task"
+		if _, err := store.AddTask(te.ProjectDir, originalTitle); err != nil {
+			t.Fatal(err)
+		}
+
+		var capturedWriteStdin []byte
+		mockReaderWithCapture := func(prompt string) (LineReader, error) {
+			return &mockLineReader{
+				readlineFunc: func() (string, error) {
+					return "new title", nil
+				},
+				writeStdinFunc: func(b []byte) (int, error) {
+					capturedWriteStdin = b
+					return len(b), nil
+				},
+				closeFunc: func() error {
+					return nil
+				},
+			}, nil
+		}
+
+		cmd := &cobra.Command{}
+		cmd.SetOut(new(bytes.Buffer))
+
+		err := runUpdate(cmd, []string{"1"}, mockReaderWithCapture)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if string(capturedWriteStdin) != originalTitle {
+			t.Fatalf("expect WriteStdin to be called with %q, got %q", originalTitle, string(capturedWriteStdin))
+		}
+	})
+
+	t.Run("Interactive mode handles readline error", func(t *testing.T) {
+		if err := os.Chdir(te.ProjectDir); err != nil {
+			t.Fatal(err)
+		}
+		defer te.Cleanup()
+
+		if _, err := store.AddTask(te.ProjectDir, "sample task"); err != nil {
+			t.Fatal(err)
+		}
+
+		expectedErr := fmt.Errorf("readline error")
+		mockReaderWithError := func(prompt string) (LineReader, error) {
+			return &mockLineReader{
+				readlineFunc: func() (string, error) {
+					return "", expectedErr
+				},
+			}, nil
+		}
+
+		cmd := &cobra.Command{}
+		cmd.SetOut(new(bytes.Buffer))
+
+		err := runUpdate(cmd, []string{"1"}, mockReaderWithError)
+		if err != expectedErr {
+			t.Fatalf("expect error %v, got %v", expectedErr, err)
+		}
+	})
+}
+
+type mockLineReader struct {
+	readlineFunc   func() (string, error)
+	writeStdinFunc func([]byte) (int, error)
+	closeFunc      func() error
+}
+
+func (m *mockLineReader) Readline() (string, error) {
+	if m.readlineFunc != nil {
+		return m.readlineFunc()
+	}
+	return "", nil
+}
+func (m *mockLineReader) WriteStdin(b []byte) (int, error) {
+	if m.writeStdinFunc != nil {
+		return m.writeStdinFunc(b)
+	}
+	return len(b), nil
+}
+func (m *mockLineReader) Close() error {
+	if m.closeFunc != nil {
+		return m.closeFunc()
+	}
+	return nil
 }
