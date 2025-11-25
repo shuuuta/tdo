@@ -22,9 +22,11 @@ func init() {
 }
 
 var updateCmd = &cobra.Command{
-	Use:   "update",
-	Short: "",
-	Long:  ``,
+	Use:   "update <task id> [new title]",
+	Short: "Update a task's title",
+	Long: `Update the title of an existing task by its index number.
+  If the new title is not provided, an interactive editor will open with the
+  current task title. Use --global to update global tasks.`,
 	Args:  cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runUpdate(cmd, args)
