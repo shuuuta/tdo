@@ -20,7 +20,7 @@ func init() {
 	if err != nil {
 		panic(fmt.Sprintf("cannot determine home directory: %v", err))
 	}
-	configDir = path.Join(home, ".config", "tdo")
+	configDir = path.Join(home, ".config", "pask")
 }
 
 func SetConfigDir(dir string) {
