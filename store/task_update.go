@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/shuuuta/tdo/model"
+	"github.com/shuuuta/pask/model"
 )
 
 func UpdateTask(projectPath, title string, id int) (*model.Task, error) {

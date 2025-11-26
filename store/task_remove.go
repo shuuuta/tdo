@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/shuuuta/tdo/model"
+	"github.com/shuuuta/pask/model"
 )
 
 func RemoveTask(projectPath string, id int) error {

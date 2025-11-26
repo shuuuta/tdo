@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/shuuuta/tdo/log"
-	"github.com/shuuuta/tdo/model"
-	"github.com/shuuuta/tdo/utils"
+	"github.com/shuuuta/pask/log"
+	"github.com/shuuuta/pask/model"
+	"github.com/shuuuta/pask/utils"
 )
 
 var configDir string

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/shuuuta/tdo/store"
+	"github.com/shuuuta/pask/store"
 )
 
 func TestDoneTask(t *testing.T) {

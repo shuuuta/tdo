@@ -6,10 +6,10 @@ import (
 	"strconv"
 
 	"github.com/chzyer/readline"
-	"github.com/shuuuta/tdo/log"
-	"github.com/shuuuta/tdo/model"
-	"github.com/shuuuta/tdo/project"
-	"github.com/shuuuta/tdo/store"
+	"github.com/shuuuta/pask/log"
+	"github.com/shuuuta/pask/model"
+	"github.com/shuuuta/pask/project"
+	"github.com/shuuuta/pask/store"
 	"github.com/spf13/cobra"
 )
 

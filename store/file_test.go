@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/shuuuta/tdo/model"
+	"github.com/shuuuta/pask/model"
 )
 
 func TestSaveAndLoadProject(t *testing.T) {

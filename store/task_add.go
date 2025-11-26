@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/shuuuta/tdo/model"
+	"github.com/shuuuta/pask/model"
 )
 
 func AddTask(projectPath, title string) (*model.Task, error) {

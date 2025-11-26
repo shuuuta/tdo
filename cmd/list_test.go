@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/shuuuta/tdo/model"
-	"github.com/shuuuta/tdo/store"
+	"github.com/shuuuta/pask/model"
+	"github.com/shuuuta/pask/store"
 )
 
 func TestListCmd(t *testing.T) {

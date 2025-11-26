@@ -5,9 +5,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/shuuuta/tdo/model"
-	"github.com/shuuuta/tdo/project"
-	"github.com/shuuuta/tdo/store"
+	"github.com/shuuuta/pask/model"
+	"github.com/shuuuta/pask/project"
+	"github.com/shuuuta/pask/store"
 	"github.com/spf13/cobra"
 )
 

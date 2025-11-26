@@ -1,4 +1,4 @@
-module github.com/shuuuta/tdo
+module github.com/shuuuta/pask
 
 go 1.23.5
 

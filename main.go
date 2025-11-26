@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/shuuuta/tdo/cmd"
+	"github.com/shuuuta/pask/cmd"
 )
 
 func main() {

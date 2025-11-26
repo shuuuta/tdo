@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/shuuuta/tdo/model"
+	"github.com/shuuuta/pask/model"
 )
 
 func TestAddTask(t *testing.T) {

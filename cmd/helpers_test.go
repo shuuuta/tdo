@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/shuuuta/tdo/store"
+	"github.com/shuuuta/pask/store"
 )
 
 func executeCommand(args ...string) (string, error) {
